@@ -1,0 +1,118 @@
+Changes as of: 19-May-2003
+
+19-May-2003:
+    Bootloader.pm: Dick Munroe (munroe@csworks.com)
+        Use Carp.
+
+    Build.pm: Dick Munroe (munroe@csworks.com)
+        Use Carp.
+
+    aboot.pm: Dick Munroe (munroe@csworks.com)
+        Use Carp.
+
+    alpha.pm: Dick Munroe (munroe@csworks.com)
+        Use Carp.
+
+    grub.pm: Dick Munroe (munroe@csworks.com)
+        Use Carp.
+
+    ix86.pm: Dick Munroe (munroe@csworks.com)
+        Use Carp.
+
+    kif: Dick Munroe (munroe@csworks.com)
+        Add a version switch.
+
+    lilo.pm: Dick Munroe (munroe@csworks.com)
+        Use Carp.
+
+    ppc.pm: Dick Munroe (munroe@csworks.com)
+        Use Carp.
+
+18-May-2003:
+    Bootloader.pm: Dick Munroe (munroe@csworks.com)
+        Make sure package variables don't leak.
+
+    Build.pm: Dick Munroe (munroe@csworks.com)
+        Make sure package variables don't leak.
+
+    aboot.pm: Dick Munroe (munroe@csworks.com)
+        Make sure package variables can't leak.
+
+    alpha.pm: Dick Munroe (munroe@csworks.com)
+        Make sure that package variables can't leak.
+
+    grub.pm: Dick Munroe (munroe@csworks.com)
+        Make sure package variables can't leak.
+
+    ix86.pm: Dick Munroe (munroe@csworks.com)
+        Make sure package variables can't leak.
+
+    kif: Dick Munroe (munroe@csworks.com)
+        Fixes for potential problems with leakage of package variables in
+        all helper classes.
+
+    lilo.pm: Dick Munroe (munroe@csworks.com)
+        Make sure package variables can't leak.
+
+    ppc.pm: Dick Munroe (munroe@csworks.com)
+        Make sure package variables can't leak.
+
+31-Dec-2002:
+    kif: Dick Munroe (munroe@csworks.com)
+        Add documentation.
+        Add -h and --help switches.
+
+03-Dec-2002:
+    Bootloader.pm: Dick Munroe (munroe@csworks.com)
+        Add an allocate only method, _new, which will, if
+        necessary, clone an object.
+        Add a _clone interface.
+
+    Build.pm: Dick Munroe (munroe@csworks.com)
+        Copy autoconf.h as well as .config when saving configuration
+        files.
+
+    ix86.pm: Dick Munroe (munroe@csworks.com)
+        Fix search for alternate boot loader configuration files.
+
+27-Nov-2002:
+    ix86.pm: Dick Munroe (munroe@csworks.com)
+        Support LILO as a bootloader.
+
+    lilo.pm: Dick Munroe (munroe@csworks.com)
+        Initial Version Created.
+
+26-Nov-2002:
+    Bootloader.pm: Dick Munroe (munroe@csworks.com)
+        Initial Version Created.
+
+    Build.pm: Dick Munroe (munroe@csworks.com)
+        Initial version created.
+        Save and restore the configuration files around the
+        running of doClean.
+        Make doClean issue a distclean to guarantee that things
+        will get built properly.
+
+    aboot.pm: Dick Munroe (munroe@csworks.com)
+        Initial Version Created.
+
+    alpha.pm: Dick Munroe (munroe@csworks.com)
+        Initial Version Created.
+
+    grub.pm: Dick Munroe (munroe@csworks.com)
+        Initial Version Created.
+
+    ix86.pm: Dick Munroe (munroe@csworks.com)
+        Initial Version Created.
+
+    kif: Dick Munroe (munroe@csworks.com)
+        Change the order of construction so that cleaning happens first.
+
+    ppc.pm: Dick Munroe (munroe@csworks.com)
+        Initial Version Created.
+
+25-Nov-2002:
+    kif: Dick Munroe (munroe@csworks.com)
+        Add ix86 with Grub support.
+        Break the packages out into separate files and directories.
+

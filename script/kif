@@ -24,8 +24,11 @@
 #       This required a major restructuring of the directory structure
 #       and as a consequence this is now version 2 of kif.
 #
+#   20-May-2003 Dick Munroe (munroe@csworks.com)
+#       Backport to 5.6.1
+#
 
-use 5.8.0 ;
+use 5.6.1 ;
 use strict ;
 
 use Getopt::Long qw(:config bundling) ;
@@ -35,7 +38,7 @@ use KIF::Build::ppc ;
 use Pod::Usage ;
 use StanzaFile ;
 
-our $VERSION = "2.00" ;
+our $VERSION = "2.01" ;
 
 #
 # The IK Actions vary depending on architecture, but are basically

@@ -5,35 +5,28 @@
 #   26-Nov-2002 Dick Munroe (munroe@csworks.com)
 #       Initial Version Created.
 #
-#   27-Nov-2002 Dick Munroe (munroe@csworks.com)
-#       Support LILO as a bootloader.
-#
-#   03-Dec-2002 Dick Munroe (munroe@csworks.com)
-#       Fix search for alternate boot loader configuration files.
-#
 #   18-May-2003 Dick Munroe (munroe@csworks.com)
-#       Make sure package variables can't leak.
+#       Make sure that package variables can't leak.
 #
 #   19-May-2003 Dick Munroe (munroe@csworks.com)
 #       Use Carp.
+#       Isolate kif related classes in a KIF namespace.
 #
 
-package Build::ix86 ;
+package KIF::Build::alpha ;
 
 use vars qw($VERSION @ISA) ;
 
-our $VERSION = "1.02" ;
+our $VERSION = "1.03" ;
 
-use 5.8.0 ;
 use strict ;
 
-use Build ;
-use Bootloader::grub ;
-use Bootloader::lilo ;
 use Carp ;
 use File::Copy ;
+use FileHandle ;
+use KIF::Build ;
 
-our @ISA = qw(Build) ;
+our @ISA = qw(KIF::Build) ;
 
 sub new
 {
@@ -47,14 +40,26 @@ sub new
     # configuration files are modified.
     #
 
-    my @theBootloaderConfigurationFiles = ("/boot/grub/grub.conf", "/etc/lilo.conf") ;
+    my @theBootloaderConfigurationFiles = (["/etc/aboot.conf", "/boot/etc/aboot.conf"], "/etc/milo.conf") ;
     my $theBootloaderIndex ;
     my $theIndex ;
     my $theNumberOfBootloaders ;
     
     for ($theIndex = 0; $theIndex < scalar(@theBootloaderConfigurationFiles); $theIndex++)
     {
-	if (-e $theBootloaderConfigurationFiles[$theIndex])
+        if (ref($theBootloaderConfigurationFiles[$theIndex]) eq "ARRAY")
+	{
+	    foreach (@{$_})
+	    {
+		if (-e $_)
+		{
+		    $theNumberOfBootloaders++ ;
+		    $theBootloaderIndex = $theIndex ;
+		    last ;
+		} ;
+	    } ;
+	}
+	elsif (-e $_)
 	{
 	    $theNumberOfBootloaders++ ;
 	    $theBootloaderIndex = $theIndex ;
@@ -62,9 +67,13 @@ sub new
     } ;
 
     #
-    # It is possible to use BOTH LILO and Grub on the same system
-    # Check to see if LILO was used to boot this system and choose
-    # LILO if necessary.
+    # It is possible to use BOTH MILO and aboot on the same system
+    # Check to see if MILO was used to boot this system and choose
+    # MILO if necessary.
+    #
+    # FIXME this is actually NOT known to work.  Can someone with
+    #       a MILO boot configuration check to see if this is actually
+    #       working?
     #
 
     if ($theNumberOfBootloaders > 1)
@@ -91,21 +100,14 @@ sub new
 
     my $theBootloader ;
 
-    $theBootloader = new Bootloader::grub if ($theBootloaderIndex == 0) ;
-    $theBootloader = new Bootloader::lilo if ($theBootloaderIndex == 1) ;
+    $theBootloader = new Bootloader::aboot if ($theBootloaderIndex == 0) ;
+    $theBootloader = new Bootloader::MILO if ($theBootloaderIndex == 1) ;
 
     croak "No bootloader object allocated" if (!defined($theBootloader)) ;
 
     $theObject->bootloader($theBootloader) ;
 
     return $theObject ;
-} ;
-
-sub doKernel
-{
-    my $theObject = shift ;
-
-    $theObject->run('make bzImage') ;
 } ;
 
 sub doMovefiles
@@ -117,12 +119,21 @@ sub doMovefiles
     my $theBuildDirectory = $theObject->buildDirectory() ;
     my $theReleaseTag = $theObject->releaseTag() ;
 
-    if (-e "$theBuildDirectory/arch/i386/boot/bzImage")
+    if (-e "$theBuildDirectory/vmlinux")
     {
-	copy("$theBuildDirectory/arch/i386/boot/bzImage", "/boot/vmlinuz-$theReleaseTag") or croak "Copy failed: $!"
-	    if (!$theObject->testFlag()) ;
-	$theObject->_print("Copied $theBuildDirectory/arch/i386/boot/bzImage => /boot/vmlinuz-$theReleaseTag\n", 1) ;
+	$theObject->run("gzip -c $theBuildDirectory/vmlinux > /boot/vmlinuz-$theReleaseTag") ;
     } ;
+} ;
+
+sub validate
+{
+    my $theObject = shift ;
+
+    croak '/boot/vmlinuz must exist.' if (!-e '/boot/vmlinuz') ;
+    
+    croak '/boot/vmlinuz must be a link.' if (!-l '/boot/vmlinuz') ;
+
+    $theObject->SUPER::validate() ;
 } ;
 
 1;

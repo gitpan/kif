@@ -10,25 +10,25 @@
 #
 #   19-May-2003 Dick Munroe (munroe@csworks.com)
 #       Use Carp.
+#       Isolate KIF related classes in a KIF namespace.
 #
 
-package Bootloader::grub ;
+package KIF::Bootloader::grub ;
 
 use vars qw($VERSION @ISA) ;
 
-our $VERSION = "1.02" ;
+our $VERSION = "1.03" ;
 
-use 5.8.0 ;
 use strict ;
 
-use Bootloader ;
 use Carp ;
 use File::Basename ;
 use File::Copy ;
 use FileHandle ;
+use KIF::Bootloader ;
 use StanzaFile::Grub ;
 
-our @ISA = qw(Bootloader) ;
+our @ISA = qw(KIF::Bootloader) ;
 
 sub new
 {

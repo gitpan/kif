@@ -15,17 +15,17 @@
 #
 #   19-May-2003 Dick Munroe (munroe@csworks.com)
 #       Use Carp.
+#       Isolate kif related classes in a KIF namespace.
 #
 
-package Bootloader ;
+package KIF::Bootloader ;
 
 use vars qw($VERSION @ISA) ;
 
-our $VERSION = "1.02" ;
+our $VERSION = "1.03" ;
 our @ISA = qw(
 	      ) ;
 
-use 5.8.0 ;
 use strict ;
 
 use Carp ;

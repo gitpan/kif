@@ -18,17 +18,23 @@
 #
 #   19-May-2003 Dick Munroe (munroe@csworks.com)
 #       Use Carp.
+#       oldconfig needs to be run after distclean all the time.
+#       Isolate kif related classes in a KIF namespace.
+#       Change variable names to elminate warnings.
+#
+#   20-May-2003 Dick Munroe (munroe@csworks.com)
+#       If a initrd file exists in the boot configuration,
+#       then get it out of the way running mkinitrd.
 #
 
-package Build ;
+package KIF::Build ;
 
 use vars qw($VERSION @ISA) ;
 
-our $VERSION = "1.02" ;
+our $VERSION = "1.04" ;
 our @ISA = qw(
 	      ) ;
 
-use 5.8.0 ;
 use strict ;
 
 use Carp ;
@@ -37,11 +43,11 @@ use File::Copy ;
 use File::stat ;
 use FileHandle ;
 
-$Build::theBuildDirectory = undef ;
-$Build::theLogFile = undef ;
-$Build::theReleaseTag = undef ;
-$Build::theTestFlag = undef ;
-$Build::theVerboseFlag = undef ;
+our $theBuildDirectory = undef ;
+our $theLogFile = undef ;
+our $theReleaseTag = undef ;
+our $theTestFlag = undef ;
+our $theVerboseFlag = undef ;
 
 sub new
 {
@@ -88,11 +94,11 @@ sub buildDirectory
 {
     my $theObject = shift ;
 
-    $Build::theBuildDirectory = $_[0] if (@_) ;
+    $theBuildDirectory = $_[0] if (@_) ;
 
-    chomp($Build::theBuildDirectory) ;
+    chomp($theBuildDirectory) ;
 
-    return $Build::theBuildDirectory ;
+    return $theBuildDirectory ;
 } ;
 
 sub logFile
@@ -101,23 +107,23 @@ sub logFile
 
     if (@_)
     {
-	$Build::theLogFile = $_[0] ;
-	if (defined($Build::theLogFile))
+	$theLogFile = $_[0] ;
+	if (defined($theLogFile))
 	{
-	    $theObject->{'logFileHandle'} = new FileHandle "> $Build::theLogFile" or croak "Can't open log file: $Build::theLogFile" ;
+	    $theObject->{'logFileHandle'} = new FileHandle "> $theLogFile" or croak "Can't open log file: $theLogFile" ;
 	} ;
     } ;
 
-    return $Build::theLogFile ;
+    return $theLogFile ;
 } ;
 
 sub releaseTag
 {
     my $theObject = shift ;
 
-    $Build::theReleaseTag = $_[0] if (@_) ;
+    $theReleaseTag = $_[0] if (@_) ;
 
-    return $Build::theReleaseTag ;
+    return $theReleaseTag ;
 } ;
 
 sub space
@@ -133,18 +139,18 @@ sub testFlag
 {
     my $theObject = shift ;
 
-    $Build::theTestFlag = $_[0] if (@_) ;
+    $theTestFlag = $_[0] if (@_) ;
 
-    return $Build::theTestFlag ;
+    return $theTestFlag ;
 } ;
 
 sub verboseFlag
 {
     my $theObject = shift ;
 
-    $Build::theVerboseFlag = $_[0] if (@_) ;
+    $theVerboseFlag = $_[0] if (@_) ;
 
-    return $Build::theVerboseFlag ;
+    return $theVerboseFlag ;
 } ;
 
 sub _buildReleaseTag
@@ -153,23 +159,23 @@ sub _buildReleaseTag
 
     my $theFileHandle = new FileHandle "< Makefile" ;
 
-    croak "Can't open $Build::theBuildDirectory/Makefile" if (!defined($theFileHandle)) ;
+    croak "Can't open $theBuildDirectory/Makefile" if (!defined($theFileHandle)) ;
 
     my $theMakefile = eval { my @theFile = $theFileHandle->getlines() ; join '',@theFile ; } ;
 
-    croak "No VERSION in $Build::theBuildDirectory/Makefile" if ($theMakefile !~ m/^[ \t]*VERSION[ \t]*=[ \t]*([^ \t\n]*)/m) ;
+    croak "No VERSION in $theBuildDirectory/Makefile" if ($theMakefile !~ m/^[ \t]*VERSION[ \t]*=[ \t]*([^ \t\n]*)/m) ;
 
     my $theVersion = $1 ;
 
-    croak "No PATCHLEVEL in $Build::theBuildDirectory/Makefile" if ($theMakefile !~ m/^[ \t]*PATCHLEVEL[ \t]*=[ \t]*([^ \t\n]*)/m) ;
+    croak "No PATCHLEVEL in $theBuildDirectory/Makefile" if ($theMakefile !~ m/^[ \t]*PATCHLEVEL[ \t]*=[ \t]*([^ \t\n]*)/m) ;
 
     my $thePatch = $1 ;
 
-    croak "No SUBLEVEL in $Build::theBuildDirectory/Makefile" if ($theMakefile !~ m/^[ \t]*SUBLEVEL[ \t]*=[ \t]*([^ \t\n]*)/m) ;
+    croak "No SUBLEVEL in $theBuildDirectory/Makefile" if ($theMakefile !~ m/^[ \t]*SUBLEVEL[ \t]*=[ \t]*([^ \t\n]*)/m) ;
 
     my $theSublevel = $1 ;
 
-    croak "No EXTRAVERSION in $Build::theBuildDirectory/Makefile" if ($theMakefile !~ m/^[ \t]*EXTRAVERSION[ \t]*=[ \t]*([^ \t\n]*)/m) ;
+    croak "No EXTRAVERSION in $theBuildDirectory/Makefile" if ($theMakefile !~ m/^[ \t]*EXTRAVERSION[ \t]*=[ \t]*([^ \t\n]*)/m) ;
 
     my $theKernelRelease = $1 ;
     
@@ -246,17 +252,15 @@ sub doClean
     my $theBuildDirectory ;
     my $theReleaseTag ;
 
-    my @theFileList = (".config", "include/linux/autoconf.h") ;
+    my @theFileList = (".config") ;
     my $theIndex ;
-    my @theATimes ;
-    my @theMTimes ;
 
-    my $theBuildDirectory = $theObject->buildDirectory() ;
-    my $theReleaseTag = $theObject->releaseTag() ;
+    my $theBuildDirectoryXXX = $theObject->buildDirectory() ;
+    my $theReleaseTagXXX = $theObject->releaseTag() ;
 
     for ($theIndex = 0; $theIndex < scalar(@theFileList); $theIndex++)
     {
-	$_ = $theBuildDirectory . '/' . $theFileList[$theIndex] ;
+	$_ = $theBuildDirectoryXXX . '/' . $theFileList[$theIndex] ;
 
 	if (-e $_)
 	{
@@ -264,12 +268,9 @@ sub doClean
 	    # Save the current configuration, if any.
 	    #
 
-	    $theMTimes[$theIndex] = stat($_)->mtime() ;
-	    $theATimes[$theIndex] = stat($_)->atime() ;
+	    move($_, '/tmp/' . basename($_) . "-$theReleaseTagXXX") if (!$theObject->testFlag()) ;
 
-	    move($_, '/tmp/' . basename($_) . "-$theReleaseTag") if (!$theObject->testFlag()) ;
-
-	    $theObject->_print("Moved $_ => /tmp/" . basename($_) . "-$theReleaseTag\n", 1) ; 
+	    $theObject->_print("Moved $_ => /tmp/" . basename($_) . "-$theReleaseTagXXX\n", 1) ; 
 	} ;
     } ;
 
@@ -277,7 +278,7 @@ sub doClean
 
     for ($theIndex = 0; $theIndex < scalar(@theFileList); $theIndex++)
     {
-	$_ = '/tmp/' . basename($theFileList[$theIndex]) . "-$theReleaseTag" ;
+	$_ = '/tmp/' . basename($theFileList[$theIndex]) . "-$theReleaseTagXXX" ;
 
 	if (-e $_)
 	{
@@ -285,48 +286,21 @@ sub doClean
 	    # Restore the current configuration, if any.
 	    #
 
-	    move($_, $theBuildDirectory . '/' . $theFileList[$theIndex]) if (!$theObject->testFlag()) ;
+	    move($_, $theBuildDirectoryXXX . '/' . $theFileList[$theIndex]) if (!$theObject->testFlag()) ;
 
-	    $theObject->_print("Moved $_ => " . $theBuildDirectory . '/' . $theFileList[$theIndex] . "\n", 1) ; 
-
-	    utime($theATimes[$theIndex], $theMTimes[$theIndex], $theFileList[$theIndex]) ;
-				# Restore the file access and modified times to
-				# make things look unchanged.
+	    $theObject->_print("Moved $_ => " . $theBuildDirectoryXXX . '/' . $theFileList[$theIndex] . "\n", 1) ; 
 	} ;
     } ;
 
     #
-    # If the configuration files are skewed, i.e., the original creation
-    # dates are out of order, then reconstruct the autoconf.h file by running
-    # old config.
+    # Once distclean has been run, it's necessary to recreate all the files
+    # associated with the configuration process.  This is most easily done
+    # by simply running oldconfig rather that attempting to save all of them.
     #
 
-    if (-e "$theBuildDirectory/.config")
+    if (-e "$theBuildDirectoryXXX/.config")
     {
-	if (-e "$theBuildDirectory/include/linux/autoconf.h")
-	{
-	    for ($theIndex = 0; $theIndex < scalar(@theFileList)-1; $theIndex++)
-	    {
-		if ($theMTimes[$theIndex] > $theMTimes[$theIndex+1])
-		{
-		    #
-		    # The files generated from .config are skewed and need to
-		    # be regenerated.
-		    #
-
-		    $theObject->run("make oldconfig") ;
-		    last ;
-		} ;
-	    } ;
-	}
-	else
-	{
-	    #
-	    # autoconf.h doesn't exists and must be built.
-	    #
-
-	    $theObject->run("make oldconfig") ;
-	} ;
+	$theObject->run("make oldconfig") ;
     } ;
 
     $theObject->space($theObject->_calculateSpace()) ;
@@ -371,19 +345,19 @@ sub doMovefiles
 {
     my $theObject = shift ;
 
-    my $theBuildDirectory = $theObject->buildDirectory() ;
-    my $theReleaseTag = $theObject->releaseTag() ;
+    my $theBuildDirectoryXXX = $theObject->buildDirectory() ;
+    my $theReleaseTagXXX = $theObject->releaseTag() ;
 
     my %theFiles =
     (
-	"$theBuildDirectory/.config"    => "/boot/config-$theReleaseTag",
-	"$theBuildDirectory/include/linux/autoconf.h" => "/boot/autoconf.h-$theReleaseTag",
-	"$theBuildDirectory/System.map" => "/boot/System.map-$theReleaseTag",
-	"$theBuildDirectory/vmlinux"    => "/boot/vmlinux-$theReleaseTag"
+	"$theBuildDirectoryXXX/.config"    => "/boot/config-$theReleaseTagXXX",
+	"$theBuildDirectoryXXX/include/linux/autoconf.h" => "/boot/autoconf.h-$theReleaseTagXXX",
+	"$theBuildDirectoryXXX/System.map" => "/boot/System.map-$theReleaseTagXXX",
+	"$theBuildDirectoryXXX/vmlinux"    => "/boot/vmlinux-$theReleaseTagXXX"
     ) ;
     my %theMode =
     (
-	"/boot/vmlinux-$theReleaseTag"  => 0755
+	"/boot/vmlinux-$theReleaseTagXXX"  => 0755
     ) ;
 
     foreach (keys %theFiles)
@@ -469,15 +443,30 @@ sub doInitrd
     #
 
     my $theInitrdFile ;
-    my $theReleaseTag = $theObject->releaseTag() ;
+    my $theReleaseTagXXX = $theObject->releaseTag() ;
 
-    if (-e ($theInitrdFile = '/boot/initrd-' . $theReleaseTag . '.img'))
+    if (-e ($theInitrdFile = '/boot/initrd-' . $theReleaseTagXXX . '.img'))
     {
-	$theObject->run("mkinitrd -v $theInitrdFile $theReleaseTag") ;
+	$theObject->run("mv -vf $theInitrdFile $theInitrdFile.old") ;
+	$theObject->run("mkinitrd -v $theInitrdFile $theReleaseTagXXX") ;
+	if (-e $theInitrdFile)
+	{
+	    unlink($theInitrdFile) ;
+	    $theObject->_print("Deleting the old rdinit file: $theInitrdFile.old\n",1) ;
+	}
+	else
+	{
+	    $theObject->run("mv -vf $theInitrdFile.old $theInitrdFile") ;
+	    croak "mkrdinit failed to create: $theInitrdFile" ;
+	}
     }
     elsif (defined($theInitrdFile = $theObject->bootloader()->initrdFile()))
     {
-	$theObject->run("mkinitrd -v /boot/$theInitrdFile $theReleaseTag") ;
+	$theObject->run("mkinitrd -v /boot/$theInitrdFile $theReleaseTagXXX") ;
+	if (! -e "/boot/$theInitrdFile")
+	{
+	    croak "mkrdinit failed to create: $theInitrdFile" ;
+	}
     } ;
 } ;
 

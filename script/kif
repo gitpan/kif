@@ -19,19 +19,23 @@
 #
 #   19-May-2003 Dick Munroe (munroe@csworks.com)
 #       Add a version switch.
+#       Make clean phase more reliable.
+#       Isolate all kif related classes in the KIF namespace.
+#       This required a major restructuring of the directory structure
+#       and as a consequence this is now version 2 of kif.
 #
 
 use 5.8.0 ;
 use strict ;
 
-use Build::alpha ;
-use Build::ix86 ;
-use Build::ppc ;
 use Getopt::Long qw(:config bundling) ;
+use KIF::Build::alpha ;
+use KIF::Build::ix86 ;
+use KIF::Build::ppc ;
 use Pod::Usage ;
 use StanzaFile ;
 
-our $VERSION = "1.02" ;
+our $VERSION = "2.00" ;
 
 #
 # The IK Actions vary depending on architecture, but are basically
@@ -170,20 +174,20 @@ die "Actions $theIKActions[$theBeginningActionIndex] and $theIKActions[$theEndin
 
 my $theBuildObject ;
 
-$theBuildObject = new Build::alpha(directory => $theBuildDirectory,
-				   log => $theLogFile,
-				   test => $theTestFlag,
-				   verbose => $theVerboseFlag) if ($theBuildArchitecture eq 'alpha') ;
+$theBuildObject = new KIF::Build::alpha(directory => $theBuildDirectory,
+				        log => $theLogFile,
+					test => $theTestFlag,
+					verbose => $theVerboseFlag) if ($theBuildArchitecture eq 'alpha') ;
 
-$theBuildObject = new Build::ix86(directory => $theBuildDirectory,
-				  log => $theLogFile,
-				  test => $theTestFlag,
-				  verbose => $theVerboseFlag) if ($theBuildArchitecture =~ m/^i\d86$/) ;
+$theBuildObject = new KIF::Build::ix86(directory => $theBuildDirectory,
+				       log => $theLogFile,
+				       test => $theTestFlag,
+				       verbose => $theVerboseFlag) if ($theBuildArchitecture =~ m/^i\d86$/) ;
 
-$theBuildObject = new Build::ppc(directory => $theBuildDirectory,
-				 log => $theLogFile,
-				 test => $theTestFlag,
-				 verbose => $theVerboseFlag) if ($theBuildArchitecture eq 'ppc') ;
+$theBuildObject = new KIF::Build::ppc(directory => $theBuildDirectory,
+				      log => $theLogFile,
+				      test => $theTestFlag,
+				      verbose => $theVerboseFlag) if ($theBuildArchitecture eq 'ppc') ;
 
 #
 # Make sure common bits and pieces of the build environment are sane.

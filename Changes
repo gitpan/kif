@@ -1,32 +1,51 @@
-Changes as of: 19-May-2003
+Changes as of: 20-May-2003
+
+20-May-2003:
+    Build.pm (1.04): Dick Munroe (munroe@csworks.com)
+        If a initrd file exists in the boot configuration,
+        then get it out of the way running mkinitrd.
 
 19-May-2003:
-    Bootloader.pm: Dick Munroe (munroe@csworks.com)
+    Bootloader.pm (1.03): Dick Munroe (munroe@csworks.com)
         Use Carp.
+        Isolate kif related classes in a KIF namespace.
 
     Build.pm: Dick Munroe (munroe@csworks.com)
         Use Carp.
+        oldconfig needs to be run after distclean all the time.
+        Isolate kif related classes in a KIF namespace.
+        Change variable names to elminate warnings.
 
-    aboot.pm: Dick Munroe (munroe@csworks.com)
+    aboot.pm (1.03): Dick Munroe (munroe@csworks.com)
         Use Carp.
+        Isolate KIF related classes in a KIF namespace.
 
-    alpha.pm: Dick Munroe (munroe@csworks.com)
+    alpha.pm (1.03): Dick Munroe (munroe@csworks.com)
         Use Carp.
+        Isolate kif related classes in a KIF namespace.
 
-    grub.pm: Dick Munroe (munroe@csworks.com)
+    grub.pm (1.03): Dick Munroe (munroe@csworks.com)
         Use Carp.
+        Isolate KIF related classes in a KIF namespace.
 
-    ix86.pm: Dick Munroe (munroe@csworks.com)
+    ix86.pm (1.02): Dick Munroe (munroe@csworks.com)
         Use Carp.
+        Isolate kif related classes in a KIF namespace.
 
-    kif: Dick Munroe (munroe@csworks.com)
+    kif (2.00): Dick Munroe (munroe@csworks.com)
         Add a version switch.
+        Make clean phase more reliable.
+        Isolate all kif related classes in the KIF namespace.
+        This required a major restructuring of the directory structure
+        and as a consequence this is now version 2 of kif.
 
-    lilo.pm: Dick Munroe (munroe@csworks.com)
+    lilo.pm (1.03): Dick Munroe (munroe@csworks.com)
         Use Carp.
+        Isolate kif related classes in a KIF namespace
 
-    ppc.pm: Dick Munroe (munroe@csworks.com)
+    ppc.pm (1.03): Dick Munroe (munroe@csworks.com)
         Use Carp.
+        Isolate kif related classes in a KIF namespace.
 
 18-May-2003:
     Bootloader.pm: Dick Munroe (munroe@csworks.com)

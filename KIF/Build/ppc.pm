@@ -10,23 +10,23 @@
 #
 #   19-May-2003 Dick Munroe (munroe@csworks.com)
 #       Use Carp.
+#       Isolate kif related classes in a KIF namespace.
 #
 
-package Build::ppc ;
+package KIF::Build::ppc ;
 
 use vars qw($VERSION @ISA) ;
 
-our $VERSION = "1.02" ;
+our $VERSION = "1.03" ;
 
-use 5.8.0 ;
 use strict ;
 
-use Build ;
-use Bootloader ;
 use Carp ;
 use File::Copy ;
+use KIF::Build ;
+use KIF::Bootloader ;
 
-our @ISA = qw(Build) ;
+our @ISA = qw(KIF::Build) ;
 
 sub new
 {
@@ -34,7 +34,7 @@ sub new
 
     my $theObject = $thePackage->SUPER::new(@_) ;
 
-    $theObject->bootloader(new Bootloader) ;
+    $theObject->bootloader(new KIF::Bootloader) ;
 
     return $theObject ;
 } ;
